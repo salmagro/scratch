@@ -1,2 +1,1 @@
-First commit.
-
+python train_04.py --dataset '/home/sebastian/workspace/ETH/data/train_patches' --n_channels 3 --gpu 0 --log_dir '/home/sebastian/workspace/ETH/unet-lightning/running_version_04/' --max_epoch 1
