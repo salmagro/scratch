@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "args": [
+                "--dataset", "/home/sebastian/workspace/ETH/data/train_patches_single",                
+                 "--n_channels", "3",
+                 "--gpu", "0",
+                 "--log_dir", "/home/sebastian/workspace/ETH/scratch",
+                 "--max_epoch", "5"
+            ],
+            "console": "integratedTerminal"
+        }
+    ]
+}
