@@ -20,21 +20,26 @@ def main(hparams):
         log_dir = os.path.join(hparams.log_dir, 'version_0')
     
     checkpoint_callback = ModelCheckpoint(
-      filepath=os.path.join(log_dir, 'checkpoints'),
-        save_best_only=False,
+        monitor='val_loss',
+        # dirpath=os.path.join(log_dir, 'checkpoints'),
+        save_top_k=2,
+        # save_besct_only=False,
         verbose=True,
     )
     
-    stop_callback = EarlyStopping(
-        monitor='val_loss',
-        mode='auto',
-        patience=5,
-        verbose=True,
-    )    
+    # stop_callback = EarlyStopping(
+    #     monitor='val_loss',
+    #     mode='auto',
+    #     patience=5,
+    #     verbose=True,
+    # )    
+
     trainer = Trainer(
+        overfit_batches=0.1111111111111111,
+        fast_dev_run=False,
         gpus=hparams.gpu,
         checkpoint_callback=checkpoint_callback,
-        early_stop_callback=stop_callback,
+        # early_stop_callback=stop_callback,
         max_epochs=hparams.max_epoch,
     )
 

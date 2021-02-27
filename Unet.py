@@ -96,19 +96,23 @@ class Unet(pl.LightningModule):
         loss = F.cross_entropy(y_hat, y) if self.n_classes > 1 else \
                     F.binary_cross_entropy_with_logits(y_hat, y)
         tensorboard_logs = {'train_loss': loss}        
-        return {'loss': loss, 'log': tensorboard_logs}
+        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
+        # return {'loss': loss, 'log': tensorboard_logs}
+
 
     def validation_step(self, batch, batch_nb):
         x, y = batch
         y_hat = self.forward(x)
         loss = F.cross_entropy(y_hat, y) if self.n_classes > 1 else \
                     F.binary_cross_entropy_with_logits(y_hat, y)
-        return {'val_loss': loss}
+        self.log('val_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
+        # return {'val_loss': loss}
 
     def validation_end(self, outputs):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
         tensorboard_logs = {'val_loss': avg_loss}
-        return {'avg_val_loss': avg_loss, 'log': tensorboard_logs}
+        self.log('avg_val_loss', avg_loss, on_step=True, on_epoch=True, prog_bar=True)
+        # return {'avg_val_loss': avg_loss, 'log': tensorboard_logs}
 
     def configure_optimizers(self):
         return torch.optim.RMSprop(self.parameters(), lr=0.001, weight_decay=1e-8)
@@ -125,15 +129,15 @@ class Unet(pl.LightningModule):
 
         return {'train': train_loader,'val': val_loader}
 
-    @pl.data_loader
+    # @pl.data_loader
     def train_dataloader(self):
         return self.__dataloader()['train']
 
-    @pl.data_loader
+    # @pl.data_loader
     def val_dataloader(self):
         return self.__dataloader()['val']
 
-    @staticmethod
+    # @staticmethod
     def add_model_specific_args(parent_parser):
         parser = ArgumentParser(parents=[parent_parser])
 
