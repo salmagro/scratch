@@ -103,16 +103,16 @@ class Unet(pl.LightningModule):
         self.upconv1 = self.expand_block(32*2, out_channels, 3, 1)
 
     def forward(self, x):
-        x1 = self.inc(x)
-        x2 = self.down1(x1)
-        x3 = self.down2(x2)
-        x4 = self.down3(x3)
-        x5 = self.down4(x4)
-        x = self.up1(x5, x4)
-        x = self.up2(x, x3)
-        x = self.up3(x, x2)
-        x = self.up4(x, x1)
-        return self.out(x)
+        conv1 = self.conv1(x)
+        conv2 = self.conv2(conv1)
+        conv3 = self.conv3(conv2)
+
+        upconv3 = self.upconv3(conv3)
+
+        upconv2 = self.upconv2(torch.cat([upconv3, conv2], 1))
+        upconv1 = self.upconv1(torch.cat([upconv2, conv1], 1))
+
+        return upconv1
 
     def training_step(self, batch, batch_nb):
         x, y = batch
