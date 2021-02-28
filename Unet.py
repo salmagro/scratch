@@ -28,20 +28,22 @@ class Unet(pl.LightningModule):
         self.bilinear = True
         # self.save_hyperparameters()
 
-        def double_conv(in_channels, out_channels):
+        def double_conv(in_channels, out_channels, kernel_size_val, padding_val):
             return nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
+                nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size_val, padding=padding_val, stride=1),
                 nn.BatchNorm2d(out_channels),
-                nn.ReLU(inplace=True),
-                nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
+                # nn.ReLU(inplace=True),
+                nn.ReLU(),
+                nn.Conv2d(out_channels, out_channels, kernel_size=kernel_size_val, padding=padding_val, stride=1),
                 nn.BatchNorm2d(out_channels),
-                nn.ReLU(inplace=True),
+                # nn.ReLU(inplace=True),
+                nn.ReLU()
             )
 
-        def down(in_channels, out_channels):
+        def down(in_channels, out_channels, kernel_size_val, padding_val):
             return nn.Sequential(
-                nn.MaxPool2d(2),
-                double_conv(in_channels, out_channels)
+                double_conv(in_channels, out_channels, kernel_size_val, padding_val)
+                nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
             )
 
         class up(pl.LightningModule):
