@@ -46,8 +46,11 @@ class DirDataset(Dataset):
     #             _img = _img / 255.
     #     return _img
 
-    def open_as_array(self, _img, invert=False):
+    def open_as_array(self, idx, invert=False):
 
+        img_files = glob.glob(os.path.join(self.img_dir, idx + '.*'))
+        assert len(img_files) == 1, f'{idx}: {img_files}'
+        _img = Image.open(img_files[0])
         raw_rgb = np.array(_img.resize((256,256)))
 
         if invert:
@@ -56,7 +59,11 @@ class DirDataset(Dataset):
         # normalize
         return (raw_rgb / np.iinfo(raw_rgb.dtype).max)
 
-    def open_mask(self, _mask, add_dims=False):
+    def open_mask(self, idx, add_dims=False):
+
+        mask_files = glob.glob(os.path.join(self.mask_dir, idx + '.*'))
+        assert len(mask_files) == 1, f'{idx}: {mask_files}'
+        _mask = Image.open(mask_files[0])
 
         raw_mask = np.array(_mask.getchannel(0).resize((256,256)))
 
@@ -73,21 +80,22 @@ class DirDataset(Dataset):
     def __getitem__(self, i):
 
         idx = self.ids[i]
-        img_files = glob.glob(os.path.join(self.img_dir, idx + '.*'))
-        mask_files = glob.glob(os.path.join(self.mask_dir, idx + '.*'))
-        assert len(img_files) == 1, f'{idx}: {img_files}'
-        assert len(mask_files) == 1, f'{idx}: {mask_files}'
+        # img_files = glob.glob(os.path.join(self.img_dir, idx + '.*'))
+        # mask_files = glob.glob(os.path.join(self.mask_dir, idx + '.*'))
+        # assert len(img_files) == 1, f'{idx}: {img_files}'
+        # assert len(mask_files) == 1, f'{idx}: {mask_files}'
 
         # use Pillow's Image to read .gif mask
         # https://answers.opencv.org/question/185929/how-to-read-gif-in-python/
 
-        img = Image.open(img_files[0])
-        mask = Image.open(mask_files[0])
-        assert img.size == mask.size, f'{img.shape} # {mask.shape}'
+        # img = Image.open(img_files[0])
+        # mask = Image.open(mask_files[0])
 
-        xx = torch.tensor(self.open_as_array(img, invert=self.pytorch),
+        # assert img.size == mask.size, f'{img.shape} # {mask.shape}'
+
+        xx = torch.tensor(self.open_as_array(idx, invert=self.pytorch),
                           dtype=torch.float32)
-        yy = torch.tensor(self.open_mask(mask, add_dims=False),
+        yy = torch.tensor(self.open_mask(idx, add_dims=False),
                           dtype=torch.torch.int64)
 
         return xx, yy
