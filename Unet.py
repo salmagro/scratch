@@ -44,7 +44,7 @@ class Unet(pl.LightningModule):
                 double_conv(in_channels, out_channels)
             )
 
-        class up(nn.Module):
+        class up(pl.LightningModule):
             def __init__(self, in_channels, out_channels, bilinear=True):
                 super().__init__()
 
@@ -71,11 +71,12 @@ class Unet(pl.LightningModule):
         self.down1 = down(64, 128)
         self.down2 = down(128, 256)
         self.down3 = down(256, 512)
-        self.down4 = down(512, 512)
-        self.up1 = up(1024, 256)
-        self.up2 = up(512, 128)
-        self.up3 = up(256, 64)
-        self.up4 = up(128, 64)
+        factor = 2 if self.bilinear else 1
+        self.down4 = down(512, 1024 // factor)
+        self.up1 = up(1024, 512 // factor, self.bilinear)
+        self.up2 = up(512,  256 // factor, self.bilinear)
+        self.up3 = up(256,  128 // factor, self.bilinear)
+        self.up4 = up(128, 64, self.bilinear)
         self.out = nn.Conv2d(64, self.n_classes, kernel_size=1)
 
     def forward(self, x):
