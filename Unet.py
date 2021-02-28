@@ -42,7 +42,20 @@ class Unet(pl.LightningModule):
 
         def down(in_channels, out_channels, kernel_size_val, padding_val):
             return nn.Sequential(
-                double_conv(in_channels, out_channels, kernel_size_val, padding_val)
+                double_conv(in_channels, out_channels, kernel_size_val, padding_val),
+                nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+            )
+
+        def contract_block(in_channels, out_channels, kernel_size_val, padding_val):
+            return nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size_val, padding=padding_val, stride=1),
+                nn.BatchNorm2d(out_channels),
+                # nn.ReLU(inplace=True),
+                nn.ReLU(),
+                nn.Conv2d(out_channels, out_channels, kernel_size=kernel_size_val, padding=padding_val, stride=1),
+                nn.BatchNorm2d(out_channels),
+                # nn.ReLU(inplace=True),
+                nn.ReLU(),
                 nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
             )
 
@@ -69,17 +82,25 @@ class Unet(pl.LightningModule):
                 x = torch.cat([x2, x1], dim=1) ## why 1?
                 return self.conv(x)
 
-        self.inc = double_conv(self.n_channels, 64)
-        self.down1 = down(64, 128)
-        self.down2 = down(128, 256)
-        self.down3 = down(256, 512)
-        factor = 2 if self.bilinear else 1
-        self.down4 = down(512, 1024 // factor)
-        self.up1 = up(1024, 512 // factor, self.bilinear)
-        self.up2 = up(512,  256 // factor, self.bilinear)
-        self.up3 = up(256,  128 // factor, self.bilinear)
-        self.up4 = up(128, 64, self.bilinear)
-        self.out = nn.Conv2d(64, self.n_classes, kernel_size=1)
+        def expand_block(self, in_channels, out_channels, kernel_size_val, padding_val):
+
+            expand = nn.Sequential(torch.nn.Conv2d(in_channels, out_channels, kernel_size_val, stride=1, padding=padding_val),
+                                torch.nn.BatchNorm2d(out_channels),
+                                torch.nn.ReLU(),
+                                torch.nn.Conv2d(out_channels, out_channels, kernel_size_val, stride=1, padding=padding_val),
+                                torch.nn.BatchNorm2d(out_channels),
+                                torch.nn.ReLU(),
+                                torch.nn.ConvTranspose2d(out_channels, out_channels, kernel_size=3, stride=2, padding=1, output_padding=1)
+                                )
+            return expand
+
+        self.conv1 = self.contract_block(self.n_channels, 32, 7, 3)
+        self.conv2 = self.contract_block(32, 64, 3, 1)
+        self.conv3 = self.contract_block(64, 128, 3, 1)
+
+        self.upconv3 = self.expand_block(128, 64, 3, 1)
+        self.upconv2 = self.expand_block(64*2, 32, 3, 1)
+        self.upconv1 = self.expand_block(32*2, out_channels, 3, 1)
 
     def forward(self, x):
         x1 = self.inc(x)
