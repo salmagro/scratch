@@ -82,7 +82,7 @@ class Unet(pl.LightningModule):
                 x = torch.cat([x2, x1], dim=1) ## why 1?
                 return self.conv(x)
 
-        def expand_block(self, in_channels, out_channels, kernel_size_val, padding_val):
+        def expand_block(in_channels, out_channels, kernel_size_val, padding_val):
 
             expand = nn.Sequential(torch.nn.Conv2d(in_channels, out_channels, kernel_size_val, stride=1, padding=padding_val),
                                 torch.nn.BatchNorm2d(out_channels),
@@ -94,13 +94,13 @@ class Unet(pl.LightningModule):
                                 )
             return expand
 
-        self.conv1 = self.contract_block(self.n_channels, 32, 7, 3)
-        self.conv2 = self.contract_block(32, 64, 3, 1)
-        self.conv3 = self.contract_block(64, 128, 3, 1)
+        self.conv1 = contract_block(self.n_channels, 32, 7, 3)
+        self.conv2 = contract_block(32, 64, 3, 1)
+        self.conv3 = contract_block(64, 128, 3, 1)
 
-        self.upconv3 = self.expand_block(128, 64, 3, 1)
-        self.upconv2 = self.expand_block(64*2, 32, 3, 1)
-        self.upconv1 = self.expand_block(32*2, out_channels, 3, 1)
+        self.upconv3 = expand_block(128, 64, 3, 1)
+        self.upconv2 = expand_block(64*2, 32, 3, 1)
+        self.upconv1 = expand_block(32*2, self.n_classes, 3, 1)
 
     def forward(self, x):
         conv1 = self.conv1(x)
@@ -166,7 +166,7 @@ class Unet(pl.LightningModule):
         parser = ArgumentParser(parents=[parent_parser])
 
         parser.add_argument('--n_channels', type=int, default=3)
-        parser.add_argument('--n_classes', type=int, default=1)
+        parser.add_argument('--n_classes', type=int, default=2)
         parser.add_argument('--lr', type=float, default=0.0011)
         parser.add_argument('--gpu', type=int, default=0)
         parser.add_argument('--max_epoch', type=int, default=10)
