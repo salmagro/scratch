@@ -35,7 +35,7 @@ def main(hparams):
     # )    
 
     trainer = Trainer(
-        overfit_batches=0.1111111111111111,
+        # overfit_batches=0.1111111111111111,
         fast_dev_run=False,
         gpus=hparams.gpu,
         checkpoint_callback=checkpoint_callback,
