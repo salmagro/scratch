@@ -117,7 +117,10 @@ class Unet(pl.LightningModule):
     def training_step(self, batch, batch_nb):
         x, y = batch
         y_hat = self.forward(x)
-        loss = F.cross_entropy(y_hat, y) if self.n_classes > 1 else \
+        y = torch.squeeze(y)
+        y_hat = torch.squeeze(y_hat)
+        y = y.type_as(y_hat)
+        loss = F.cross_entropy(y_hat, y) if self.n_classes > 2 else \
                     F.binary_cross_entropy_with_logits(y_hat, y)
         tensorboard_logs = {'train_loss': loss}        
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
@@ -127,7 +130,10 @@ class Unet(pl.LightningModule):
     def validation_step(self, batch, batch_nb):
         x, y = batch
         y_hat = self.forward(x)
-        loss = F.cross_entropy(y_hat, y) if self.n_classes > 1 else \
+        y = torch.squeeze(y)
+        y = y.type_as(y_hat)
+        y_hat = torch.squeeze(y_hat)
+        loss = F.cross_entropy(y_hat, y) if self.n_classes > 2 else \
                     F.binary_cross_entropy_with_logits(y_hat, y)
         self.log('val_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
         # return {'val_loss': loss}
@@ -149,8 +155,8 @@ class Unet(pl.LightningModule):
         n_val = int(len(dataset) * 0.1)
         n_train = len(dataset) - n_val
         train_ds, val_ds = random_split(dataset, [n_train, n_val])
-        train_loader = DataLoader(train_ds, batch_size=1, pin_memory=True, shuffle=True)
-        val_loader = DataLoader(val_ds, batch_size=1, pin_memory=True, shuffle=False)
+        train_loader = DataLoader(train_ds, batch_size=4, pin_memory=True, shuffle=True)
+        val_loader = DataLoader(val_ds, batch_size=4, pin_memory=True, shuffle=False)
 
         return {'train': train_loader,'val': val_loader}
 
@@ -167,7 +173,7 @@ class Unet(pl.LightningModule):
         parser = ArgumentParser(parents=[parent_parser])
 
         parser.add_argument('--n_channels', type=int, default=3)
-        parser.add_argument('--n_classes', type=int, default=2)
+        parser.add_argument('--n_classes', type=int, default=1)
         parser.add_argument('--lr', type=float, default=0.0011)
         parser.add_argument('--gpu', type=int, default=0)
         parser.add_argument('--max_epoch', type=int, default=10)
