@@ -36,30 +36,31 @@ def main(hparams):
 
     trainer = Trainer(
         # overfit_batches=0.1111111111111111,
+        auto_lr_find=False,
         fast_dev_run=False,
         gpus=hparams.gpu,
         auto_lr_find=True,
         checkpoint_callback=checkpoint_callback,
-        # early_stop_callback=stop_callback,
         max_epochs=hparams.max_epoch,
     )
-    
+
+    # Run learning rate finder
     lr_finder = trainer.tuner.lr_find(model)
-    
-    # Inspect results
-    fig = lr_finder.plot(); fig.show()
-    suggested_lr = lr_finder.suggestion()
-    
-    # Overwrite lr and create new model
-    hparams.lr = suggested_lr
-    
-    model = Unet(hparams)
-    if pretrained:
-      # checkpoint = 
-      # 'https://github.com/milesial/Pytorch-UNet/releases/download/v1.0/unet_carvana_scale1_epoch5.pth'
-      model.load_from_checkpoint('/content/drive/MyDrive/ETH/drive_lightning_logs/train_logs_2021-03-02_02-08-11/version_2/checkpoints')
-    
-    # Ready to train with new learning rate
+
+    # Results can be found in
+    lr_finder.results
+    # Plot with
+    fig = lr_finder.plot(suggest=True)
+    fig.show()
+
+    # Pick point based on plot, or get suggestion
+    new_lr = lr_finder.suggestion()
+    print("Suggested lr:", new_lr)
+
+    # update hparams of the model
+    model.hparams.lr = new_lr
+
+
     trainer.fit(model)
 
 
