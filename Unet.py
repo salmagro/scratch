@@ -94,12 +94,26 @@ class Unet(pl.LightningModule):
                                 )
             return expand
 
+        def expand_end_block(in_channels, out_channels, kernel_size_val, padding_val):
+
+            expand_end = nn.Sequential(torch.nn.Conv2d(in_channels, out_channels, kernel_size_val, stride=1, padding=padding_val),
+                                torch.nn.BatchNorm2d(out_channels),
+                                torch.nn.ReLU(),
+                                torch.nn.Conv2d(out_channels, out_channels, kernel_size_val, stride=1, padding=padding_val),
+                                torch.nn.BatchNorm2d(out_channels),
+                                torch.nn.ReLU(),
+                                torch.nn.ConvTranspose2d(out_channels, out_channels, kernel_size=3, stride=2, padding=1, output_padding=1),
+                                torch.nn.Sigmoid()
+                                )
+            return expand_end
+
         self.conv1 = contract_block(self.n_channels, 32, 7, 3)
         self.conv2 = contract_block(32, 64, 3, 1)
         self.conv3 = contract_block(64, 128, 3, 1)
 
         self.upconv3 = expand_block(128, 64, 3, 1)
         self.upconv2 = expand_block(64*2, 32, 3, 1)
+        # self.upconv1 = expand_end_block(32*2, self.n_classes, 3, 1)
         self.upconv1 = expand_block(32*2, self.n_classes, 3, 1)
 
     def forward(self, x):
@@ -122,9 +136,10 @@ class Unet(pl.LightningModule):
         y = y.type_as(y_hat)
         loss = F.cross_entropy(y_hat, y) if self.n_classes > 2 else \
                     F.binary_cross_entropy_with_logits(y_hat, y)
+        # loss = nn.BCELoss(y_hat)
         tensorboard_logs = {'train_loss': loss}        
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
-        # return {'loss': loss, 'log': tensorboard_logs}
+        return {'loss': loss}
 
 
     def validation_step(self, batch, batch_nb):
@@ -135,19 +150,20 @@ class Unet(pl.LightningModule):
         y_hat = torch.squeeze(y_hat)
         loss = F.cross_entropy(y_hat, y) if self.n_classes > 2 else \
                     F.binary_cross_entropy_with_logits(y_hat, y)
+        # loss = nn.BCELoss(y_hat)
         self.log('val_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
-        # return {'val_loss': loss}
+        return {'val_loss': loss}
 
     def validation_end(self, outputs):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
         tensorboard_logs = {'val_loss': avg_loss}
         self.log('avg_val_loss', avg_loss, on_step=True, on_epoch=True, prog_bar=True)
-        # return {'avg_val_loss': avg_loss, 'log': tensorboard_logs}
+        return {'avg_val_loss': avg_loss}
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=(self.lr or self.learning_rate))
+        # return torch.optim.Adam(self.parameters(), lr=(self.lr or self.learning_rate))
         # return torch.optim.RMSprop(self.parameters(), lr=0.001, weight_decay=1e-8)
-        # return torch.optim.RMSprop(self.parameters(), lr=(self.lr or self.learning_rate), weight_decay=1e-8)
+        return torch.optim.RMSprop(self.parameters(), lr=(self.lr or self.learning_rate), weight_decay=1e-8)
         
     def __dataloader(self):
         dataset = self.hparams.dataset
@@ -155,8 +171,8 @@ class Unet(pl.LightningModule):
         n_val = int(len(dataset) * 0.1)
         n_train = len(dataset) - n_val
         train_ds, val_ds = random_split(dataset, [n_train, n_val])
-        train_loader = DataLoader(train_ds, batch_size=4, pin_memory=True, shuffle=True)
-        val_loader = DataLoader(val_ds, batch_size=4, pin_memory=True, shuffle=False)
+        train_loader = DataLoader(train_ds, batch_size=16, pin_memory=True, shuffle=True)
+        val_loader = DataLoader(val_ds, batch_size=16, pin_memory=True, shuffle=False)
 
         return {'train': train_loader,'val': val_loader}
 
@@ -174,7 +190,7 @@ class Unet(pl.LightningModule):
 
         parser.add_argument('--n_channels', type=int, default=3)
         parser.add_argument('--n_classes', type=int, default=1)
-        parser.add_argument('--lr', type=float, default=0.0011)
+        parser.add_argument('--lr', type=float, default=0.01)
         parser.add_argument('--gpu', type=int, default=0)
         parser.add_argument('--max_epoch', type=int, default=10)
         return parser
