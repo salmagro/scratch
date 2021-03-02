@@ -24,6 +24,7 @@ def main(hparams):
         # dirpath=os.path.join(log_dir, 'checkpoints'),
         save_top_k=2,
         # save_besct_only=False,
+        dirpath='/home/sebastian/workspace/ETH/scratch/lightning_logs',
         verbose=True,
     )
     
@@ -36,7 +37,6 @@ def main(hparams):
 
     trainer = Trainer(
         # overfit_batches=0.1111111111111111,
-        auto_lr_find=False,
         fast_dev_run=False,
         gpus=hparams.gpu,
         auto_lr_find=True,
