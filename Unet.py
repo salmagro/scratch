@@ -161,9 +161,9 @@ class Unet(pl.LightningModule):
         return {'avg_val_loss': avg_loss}
 
     def configure_optimizers(self):
-        # return torch.optim.Adam(self.parameters(), lr=(self.lr or self.learning_rate))
+        return torch.optim.Adam(self.parameters(), lr=(self.lr or self.learning_rate))
         # return torch.optim.RMSprop(self.parameters(), lr=0.001, weight_decay=1e-8)
-        return torch.optim.RMSprop(self.parameters(), lr=(self.lr or self.learning_rate), weight_decay=1e-8)
+        # return torch.optim.RMSprop(self.parameters(), lr=(self.lr or self.learning_rate), weight_decay=1e-8)
         
     def __dataloader(self):
         dataset = self.hparams.dataset
