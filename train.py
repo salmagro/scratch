@@ -43,7 +43,7 @@ def main(hparams):
         checkpoint_callback=checkpoint_callback,
         max_epochs=hparams.max_epoch,
     )
-
+    """
     # Run learning rate finder
     lr_finder = trainer.tuner.lr_find(model)
 
@@ -59,7 +59,7 @@ def main(hparams):
 
     # update hparams of the model
     model.hparams.lr = new_lr
-
+    """
 
     trainer.fit(model)
 

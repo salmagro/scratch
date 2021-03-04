@@ -168,7 +168,7 @@ class Unet(pl.LightningModule):
 
         # calculate acc
         val_acc = self.acc_metric(y_hat, y)
-        self.log('val_loss', val_acc,on_step=True, on_epoch=True, prog_bar=True)
+        self.log('val_loss', loss,on_step=True, on_epoch=True, prog_bar=True)
         self.log('val_acc', val_acc,on_step=True, on_epoch=True, prog_bar=True)
         return {'val_loss': loss, 'val_acc': val_acc}
     
