@@ -144,8 +144,9 @@ class Unet(pl.LightningModule):
         return {'loss': loss}
 
     def acc_metric(self, predb, yb):
-        # return (predb.argmax(dim=1) == yb.cuda()).float().mean()
-        return (predb.argmax(dim=1) == yb).float().mean()
+        a = predb.argmax(dim=0)
+        b = yb.argmax(dim=0)
+        return  (a == b).float().mean()
 
     def validation_step(self, batch, batch_nb):
         x, y = batch
