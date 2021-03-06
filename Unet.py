@@ -133,8 +133,18 @@ class Unet(pl.LightningModule):
     def training_step(self, batch, batch_nb):
         x, y = batch
         y_hat = self.forward(x)
-        y = torch.squeeze(y)
+
         y_hat = torch.squeeze(y_hat)
+
+        # log 4 example images
+        sample_y = y[:4]
+        sample_y_hat = y_hat[:4]
+        grid_1 = utils.make_grid(sample_y)
+        grid_2 = utils.make_grid(sample_y_hat)
+        self.logger.experiment.add_image('y', grid_1, 0)
+        self.logger.experiment.add_image('y_hat', grid_2, 0)
+
+        y = torch.squeeze(y)
         y = y.type_as(y_hat)
         loss = F.cross_entropy(y_hat, y) if self.n_classes > 2 else \
                     F.binary_cross_entropy_with_logits(y_hat, y)
@@ -157,14 +167,6 @@ class Unet(pl.LightningModule):
         loss = F.cross_entropy(y_hat, y) if self.n_classes > 2 else \
                     F.binary_cross_entropy_with_logits(y_hat, y)
         # loss = nn.BCELoss(y_hat)
-
-        # log 4 example images
-        sample_y = y[:4]
-        sample_y_hat = y_hat[:4]
-        grid_1 = utils.make_grid(sample_y)
-        grid_2 = utils.make_grid(sample_y_hat)
-        self.logger.experiment.add_image('y', grid_1, 0)
-        self.logger.experiment.add_image('y_hat', grid_2, 0)
 
         # calculate acc
         val_acc = self.acc_metric(y_hat, y)

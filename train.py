@@ -24,7 +24,7 @@ def main(hparams):
         # dirpath=os.path.join(log_dir, 'checkpoints'),
         save_top_k=2,
         # save_besct_only=False,
-        dirpath='/home/sebastian/workspace/ETH/scratch/lightning_logs',
+        # dirpath='/home/sebastian/workspace/ETH/scratch/lightning_logs',
         verbose=True,
     )
     
