@@ -8,6 +8,7 @@ import torch
 from Unet import Unet
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
+from pytorch_lightning.logging import TestTubeLogger
 
 def weights_update(model, checkpoint):
     model_dict = model.state_dict()
@@ -37,6 +38,12 @@ def main(hparams):
         verbose=True,
     )
 
+
+    logger = TestTubeLogger(
+        save_dir='/content/drive/MyDrive/ETH/drive_lightning_logs/train_logs_2021-03-07_13-19-24/'',
+        version=0  # An existing version with a saved checkpoint
+    )
+
     # stop_callback = EarlyStopping(
     #     monitor='val_loss',
     #     mode='auto',
@@ -45,6 +52,8 @@ def main(hparams):
     # )
 
     trainer = Trainer(
+        logger=logger,
+        default_save_path='/content/lightning_logs'
         # overfit_batches=0.1111111111111111,
         fast_dev_run=False,
         gpus=hparams.gpu,
