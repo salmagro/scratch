@@ -8,7 +8,7 @@ import torch
 from Unet import Unet
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
-from pytorch_lightning.logging import TestTubeLogger
+
 
 def weights_update(model, checkpoint):
     model_dict = model.state_dict()
@@ -19,9 +19,12 @@ def weights_update(model, checkpoint):
 
 
 def main(hparams):
-    # model = Unet(hparams)
-    checkpoint_path = '/content/drive/MyDrive/ETH/drive_lightning_logs/train_logs_2021-03-06_15-00-53/version_0/checkpoints/epoch=19-step=7679.ckpt'
-    model = weights_update(model=Unet(hparams), checkpoint=torch.load(checkpoint_path))
+    # model = weights_update(model=Unet(hparams), checkpoint=torch.load(checkpoint_path))
+
+    # load the ckpt
+    ckpt = torch.load('/content/lightning_logs/version_0/checkpoints/epoch=27-step=193283.ckpt')
+    model = Unet(hparams)
+    model.load_state_dict(ckpt['state_dict'])
 
     os.makedirs(hparams.log_dir, exist_ok=True)
     try:
@@ -39,10 +42,6 @@ def main(hparams):
     )
 
 
-    logger = TestTubeLogger(
-        save_dir='/content/drive/MyDrive/ETH/drive_lightning_logs/train_logs_2021-03-07_13-19-24/'',
-        version=0  # An existing version with a saved checkpoint
-    )
 
     # stop_callback = EarlyStopping(
     #     monitor='val_loss',
@@ -52,8 +51,6 @@ def main(hparams):
     # )
 
     trainer = Trainer(
-        logger=logger,
-        default_save_path='/content/lightning_logs'
         # overfit_batches=0.1111111111111111,
         fast_dev_run=False,
         gpus=hparams.gpu,
