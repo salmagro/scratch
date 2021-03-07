@@ -9,16 +9,25 @@ from Unet import Unet
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 
+def weights_update(model, checkpoint):
+    model_dict = model.state_dict()
+    pretrained_dict = {k: v for k, v in checkpoint['state_dict'].items() if k in model_dict}
+    model_dict.update(pretrained_dict)
+    model.load_state_dict(model_dict)
+    return model
+
 
 def main(hparams):
-    model = Unet(hparams)
+    # model = Unet(hparams)
+    checkpoint_path = '/content/drive/MyDrive/ETH/drive_lightning_logs/train_logs_2021-03-06_15-00-53/version_0/checkpoints/epoch=19-step=7679.ckpt'
+    model = weights_update(model=Unet(hparams), checkpoint=torch.load(checkpoint_path))
 
     os.makedirs(hparams.log_dir, exist_ok=True)
     try:
         log_dir = sorted(os.listdir(hparams.log_dir))[-1]
     except IndexError:
         log_dir = os.path.join(hparams.log_dir, 'version_0')
-    
+
     checkpoint_callback = ModelCheckpoint(
         monitor='val_loss',
         # dirpath=os.path.join(log_dir, 'checkpoints'),
@@ -27,13 +36,13 @@ def main(hparams):
         # dirpath='/home/sebastian/workspace/ETH/scratch/lightning_logs',
         verbose=True,
     )
-    
+
     # stop_callback = EarlyStopping(
     #     monitor='val_loss',
     #     mode='auto',
     #     patience=5,
     #     verbose=True,
-    # )    
+    # )
 
     trainer = Trainer(
         # overfit_batches=0.1111111111111111,

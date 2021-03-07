@@ -149,7 +149,7 @@ class Unet(pl.LightningModule):
         loss = F.cross_entropy(y_hat, y) if self.n_classes > 2 else \
                     F.binary_cross_entropy_with_logits(y_hat, y)
         # loss = nn.BCELoss(y_hat)
-        tensorboard_logs = {'train_loss': loss}        
+        tensorboard_logs = {'train_loss': loss}
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
         return {'loss': loss}
 
@@ -173,7 +173,7 @@ class Unet(pl.LightningModule):
         self.log('val_loss', loss,on_step=True, on_epoch=True, prog_bar=True)
         self.log('val_acc', val_acc,on_step=True, on_epoch=True, prog_bar=True)
         return {'val_loss': loss, 'val_acc': val_acc}
-    
+
     def validation_end(self, outputs):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
         tensorboard_logs = {'val_loss': avg_loss}
@@ -184,19 +184,19 @@ class Unet(pl.LightningModule):
         return torch.optim.Adam(self.parameters(), lr=(self.lr or self.learning_rate))
         # return torch.optim.RMSprop(self.parameters(), lr=0.001, weight_decay=1e-8)
         # return torch.optim.RMSprop(self.parameters(), lr=(self.lr or self.learning_rate), weight_decay=1e-8)
-        
+
     def __dataloader(self):
         dataset = self.hparams.dataset
         dataset = DirDataset(f'{dataset}/images',f'{dataset}/gt')
         n_val = int(len(dataset) * 0.1)
         n_train = len(dataset) - n_val
         train_ds, val_ds = random_split(dataset, [n_train, n_val])
-        train_loader = DataLoader(train_ds, batch_size=16, pin_memory=True, shuffle=True)
-        val_loader = DataLoader(val_ds, batch_size=16, pin_memory=True, shuffle=False)
+        train_loader = DataLoader(train_ds, batch_size=1, pin_memory=True, shuffle=True)
+        val_loader = DataLoader(val_ds, batch_size=1, pin_memory=True, shuffle=False)
 
         return {'train': train_loader,'val': val_loader}
 
-    
+
 
     # @pl.data_loader
     def train_dataloader(self):
@@ -216,4 +216,3 @@ class Unet(pl.LightningModule):
         parser.add_argument('--gpu', type=int, default=0)
         parser.add_argument('--max_epoch', type=int, default=10)
         return parser
-        
