@@ -13,7 +13,7 @@ from dataset import DirDataset
 
 def predict(net, img, device='cpu', threshold=0.5):
     ds = DirDataset('', '')
-    _img = torch.from_numpy(ds.preprocess(img))
+    _img = torch.from_numpy(ds.preprocess_original(img))
 
     _img = _img.unsqueeze(0)
     _img = _img.to(device=device, dtype=torch.float32)

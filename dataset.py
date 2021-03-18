@@ -24,6 +24,30 @@ class DirDataset(Dataset):
     def __len__(self):
         return len(self.ids)
 
+    
+    def preprocess_original(self, img):
+        # w, h = img.size
+        # # _h = int(h * self.scale)
+        # # _w = int(w * self.scale)
+
+        # _h = int(h * self.scale)
+        # _w = int(w * self.scale)
+        # assert _w > 0
+        # assert _h > 0
+
+        # _img = img.resize((_w, _h))
+
+        _img = img.resize((256, 256))
+        _img = np.array(_img)
+        if len(_img.shape) == 2:  ## gray/mask images
+            _img = np.expand_dims(_img, axis=-1)
+
+        # hwc to chw
+        _img = _img.transpose((2, 0, 1))
+        if _img.max() > 1:
+            _img = _img / 255.
+        return _img
+    
     # def preprocess(self, img, type):
     #     # w, h = img.size
     #     # _h = int(h * self.scale)
