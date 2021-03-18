@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "Python: train.py",
             "type": "python",
             "request": "launch",
             "program": "${file}",
@@ -15,6 +15,21 @@
                  "--gpu", "0",
                  "--log_dir", "/home/sebastian/workspace/ETH/scratch",
                  "--max_epoch", "5"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: test.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "args": [
+                // "--checkpoint", "lightning_logs/version_0/checkpoints/_ckpt_epoch_1.ckpt",
+                "--checkpoint", "~/workspace/ETH/data/2021.03.18_prediction/train_logs_2021-03-07_13-19-24/version_0/checkpoints/epoch=27-step=193283.ckpt",
+                //"--img_dir", "dataset/carvana/test",
+                "--img_dir", "/home/sebastian/workspace/ETH/data/2021.03.18_prediction/images",
+                //"--out_dir", "result/carvana",
+                "--out_dir", "/home/sebastian/workspace/ETH/data/2021.03.18_prediction/out",
             ],
             "console": "integratedTerminal"
         }
