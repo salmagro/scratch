@@ -5,16 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Python: train.py",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "args": [
-                "--dataset", "/home/sebastian/workspace/ETH/data/train_patches_single",                
-                 "--n_channels", "3",
-                 "--gpu", "0",
-                 "--log_dir", "/home/sebastian/workspace/ETH/scratch",
-                 "--max_epoch", "5"
+                "--dataset",
+                "/home/sebastian/workspace/ETH/data/train_patches_single",
+                "--n_channels",
+                "3",
+                "--gpu",
+                "0",
+                "--log_dir",
+                "/home/sebastian/workspace/ETH/scratch",
+                "--max_epoch",
+                "5"
             ],
             "console": "integratedTerminal"
         },
@@ -27,18 +39,17 @@
                 // "--checkpoint", "lightning_logs/version_0/checkpoints/_ckpt_epoch_1.ckpt",
                 // "--checkpoint", "~/workspace/ETH/data/2021.03.18_prediction/train_logs_2021-03-07_13-19-24/version_0/checkpoints/epoch=23-step=165671.ckpt",
                 // "--checkpoint", "~/workspace/ETH/data/2021.03.18_prediction/train_logs_2021-03-07_14-55-32/version_0/checkpoints/epoch=27-step=193283.ckpt",
-                
                 // "--checkpoint", "~/workspace/ETH/data/2021.03.18_prediction/train_logs_2021-03-07_14-55-32/version_1/checkpoints/epoch=0-step=6902.ckpt",
                 // "--checkpoint", "~/workspace/ETH/data/2021.03.18_prediction/train_logs_2021-03-07_14-55-32/version_1/checkpoints/epoch=1-step=8639.ckpt",
-                
                 // "--checkpoint", "~/workspace/ETH/data/2021.03.18_prediction/train_logs_2021-03-07_14-55-32/version_2/checkpoints/epoch=2-step=20708.ckpt",
-                "--checkpoint", "~/workspace/ETH/data/2021.03.18_prediction/train_logs_2021-03-07_14-55-32/version_2/checkpoints/epoch=4-step=34514.ckpt",
-                
-
+                "--checkpoint",
+                "~/workspace/ETH/data/2021.03.18_prediction/train_logs_2021-03-07_14-55-32/version_2/checkpoints/epoch=4-step=34514.ckpt",
                 //"--img_dir", "dataset/carvana/test",
-                "--img_dir", "/home/sebastian/workspace/ETH/data/2021.03.18_prediction/images",
+                "--img_dir",
+                "/home/sebastian/workspace/ETH/data/2021.03.18_prediction/images",
                 //"--out_dir", "result/carvana",
-                "--out_dir", "/home/sebastian/workspace/ETH/data/2021.03.18_prediction/out",
+                "--out_dir",
+                "/home/sebastian/workspace/ETH/data/2021.03.18_prediction/out",
             ],
             "console": "integratedTerminal"
         }
